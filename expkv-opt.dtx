@@ -1,0 +1,943 @@
+% \iffalse meta-comment
+%
+% File: expkv-opt.dtx Copyright (C) 2020 Jonathan P. Spratte
+%
+% This work  may be  distributed and/or  modified under  the conditions  of the
+% LaTeX Project Public License (LPPL),  either version 1.3c  of this license or
+% (at your option) any later version.  The latest version of this license is in
+% the file:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+% ------------------------------------------------------------------------------
+%
+%<*driver>^^A>>=
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+\input l3docstrip.tex
+\askforoverwritefalse
+\preamble
+
+--------------------------------------------------------------
+expkv-opt -- parse class and package options with expkv
+E-mail: jspratte@yahoo.de
+Released under the LaTeX Project Public License v1.3c or later
+See http://www.latex-project.org/lppl.txt
+--------------------------------------------------------------
+
+Copyright (C) 2020 Jonathan P. Spratte
+
+This  work may be  distributed and/or  modified under  the conditions  of the
+LaTeX Project Public License (LPPL),  either version 1.3c  of this license or
+(at your option) any later version.  The latest version of this license is in
+the file:
+
+  http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status) by
+  Jonathan P. Spratte.
+
+This work consists of the file  expkv-opt.dtx
+and the derived files           expkv-opt.pdf
+                                expkv-opt.sty
+
+\endpreamble
+% stop docstrip adding \endinput
+\postamble
+\endpostamble
+\generate{\file{expkv-opt.sty}{\from{expkv-opt.dtx}{pkg}}}
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%
+\IfFileExists{expkv-opt.sty}{\RequirePackage{expkv-opt}}{}
+\ProvidesFile{expkv-opt.dtx}
+  [\csname ekvoDate\endcsname\ parse class and package options with expkv]
+\PassOptionsToPackage{full}{textcomp}
+\documentclass{l3doc}
+\RequirePackage[oldstylenums,nott]{kpfonts}
+\input{glyphtounicode}
+\pdfgentounicode=1
+\RequirePackage{listings}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{collcell}
+\RequirePackage{siunitx}
+\RequirePackage{xcolor}
+\RequirePackage{caption}
+\RequirePackage{microtype}
+\RequirePackage{accsupp}
+\lstset
+  {
+    ,flexiblecolumns=false
+    ,basewidth=.53em
+    ,gobble=2
+    ,basicstyle=\fontfamily{jkp}\itshape
+    ,morekeywords=^^A
+      {^^A
+        \ekvoProcessLocalOptions,
+        \ekvoProcessGlobalOptions,
+        \ekvoProcessUnusedGlobalOptions,
+        \ekvoProcessOptionsList,
+        \ekvoUseUnknownHandlers
+      }
+    ,morecomment=[l]\%
+    ,commentstyle=\color[gray]{0.4}
+    ,literate={\{}{{\CodeSymbol\{}}{1}
+              {\}}{{\CodeSymbol\}}}{1}
+    ^^A,literate=*{<key>}{\key}{4}{<set>}{\set}{4}
+  }
+\newcommand*\CodeSymbol[1]{\textbf{#1}}
+\RequirePackage{randtext}
+\let\metaORIG\meta
+\protected\def\meta #1{\texttt{\metaORIG{#1}}}
+\renewcommand*\thefootnote{\fnsymbol{footnote}}
+\definecolor{expkvred}{HTML}{9F393D}
+\colorlet{expkvgrey}{black!75}
+\makeatletter
+\newcommand*\expkv
+  {^^A
+    \texorpdfstring
+      {^^A
+        \mbox
+          {^^A
+            \BeginAccSupp{ActualText=expkv}^^A
+            \href{https://github.com/Skillmon/tex_expkv}
+              {^^A
+                \rmfamily
+                \bfseries
+                {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+                \lower.493ex
+                  \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+                \kern-.18em{\color{expkvred}v}^^A
+              }^^A
+            \EndAccSupp{}^^A
+          }^^A
+      }
+      {expkv}^^A
+  }
+\newcommand*\expkvpkg[1]
+  {^^A
+    \texorpdfstring
+      {^^A
+        \mbox
+          {^^A
+            \BeginAccSupp{ActualText=expkv-#1}^^A
+            \href{https://github.com/Skillmon/tex_expkv-#1}
+              {^^A
+                \rmfamily
+                \bfseries
+                {\color{expkvgrey}e\kern-.05em x\kern-.05em}^^A
+                \lower.493ex
+                  \hbox{{\color{expkvgrey}P}\kern-.1em{\color{expkvred}k}}^^A
+                \kern-.18em{\color{expkvred}v}^^A
+                {\color{expkvgrey}^^A
+                  \kern.05em\rule[-.1ex]{.08em}{1.2ex}\kern.05em\textsc{#1}^^A
+                }^^A
+              }^^A
+            \EndAccSupp{}^^A
+          }^^A
+      }
+      {expkv-#1}^^A
+  }
+\newcommand*\expkvd{\expkvpkg{def}}
+\newcommand*\expkvc{\expkvpkg{cs}}
+\newcommand*\expkvo{\expkvpkg{opt}}
+\newcommand\kv{\meta{key}=\meta{value}}
+\newcommand\key{\meta{key}}
+\newcommand\val{\meta{value}}
+\newcommand\set{\meta{set}}
+\newcommand\enfprot{\textcolor{black}{protected}}
+\newcommand\allprot{\textcolor{gray}{protected}}
+\newcommand\notprot{\textcolor{red!80!black}{protected}}
+\newcommand\enflong{\textcolor{black}{long}}
+\newcommand\alllong{\textcolor{gray}{long}}
+\newcommand\notlong{\textcolor{red!80!black}{long}}
+\newcommand\prefixes[2]
+  {^^A
+    \hfill
+    \ifcase\numexpr#1\relax\or
+      \enfprot\or
+      \allprot\or
+      \notprot\fi\space
+    \ifcase\numexpr#2\relax\or
+      \enflong\or
+      \alllong\or
+      \notlong\fi
+  }
+\hypersetup{linkcolor=red!80!black,urlcolor=purple!80!black}
+\DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
+\DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
+\DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
+\DoNotIndex{\@,\unexpanded,\string,\expanded,\dimexpr,\global,\glueexpr,\hbox}
+\DoNotIndex{\numexpr,\RequirePackage,\setbox,\the,\unless,\xdef,\@firstofone}
+\DoNotIndex{\@firstoftwo,\@gobble,\@secondoftwo}
+\DoNotIndex{\ifcsname}
+\DoNotIndex{\ifx}
+\DoNotIndex{\ifdefined}
+\DoNotIndex{\iffalse}
+\DoNotIndex{\iftrue}
+\DoNotIndex{\else}
+\DoNotIndex{\fi}
+\@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
+\@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
+\@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
+\@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
+\@ifdefinable\gobbledocstriptag{\def\gobbledocstriptag#1>{}}
+\makeatother
+\begin{document}
+  \title
+    {^^A
+      \texorpdfstring
+        {^^A
+          \huge\expkvd
+          \\[\medskipamount]
+          \Large parse class and package options with \expkv
+        }{expkv-opt - parse class and package options with expkv}^^A
+    }
+  \date{\ekvoDate\space v\ekvoVersion}
+  \author{Jonathan P. Spratte\thanks{\protect\randomize{jspratte@yahoo.de}}}
+  \DocInput{expkv-opt.dtx}
+\end{document}
+%</driver>^^A=<<
+% \fi
+%
+% \maketitle
+% \renewcommand*\thefootnote{\arabic{footnote}}
+%
+% \begin{abstract}
+% \noindent\parfillskip=0pt
+% \expkvo\ provides option parsing for classes and packages in \LaTeXe\ based on
+% \expkv. It provides individual parsing of global and local options. The
+% stylised name is \expkvo\ but the files use \file{expkv-opt}, this is due to
+% CTAN-rules which don't allow \string| in package names since that is the pipe
+% symbol in *nix shells.
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \begin{documentation}^^A>>=
+%
+% \section{Documentation}
+%
+% The \expkv\ family provides at its core a \kv\ parser and additionally a
+% package to conveniently define new keys (\expkvd) and a package to build
+% expandable \kv\ taking control sequences (\expkvc). Still missing from the mix
+% was a solution to parse \LaTeXe\ class and package options, a gap that's
+% hereby filled with \expkvo.
+%
+% \expkvo\ shouldn't place any restrictions on the keys, but note that parts of
+% \LaTeXe\ can break if the \kv\ list contains braces. This includes the global
+% options list depending on which class you're using.
+%
+% The package can be loaded with
+% \begin{lstlisting}
+% \usepackage{expkv-opt}
+% \end{lstlisting}
+% Unlike the other packages in the \expkv\ family, \expkvo\ is only provided as
+% a \LaTeX\ package.
+%
+% Before reading this documentation you should read \expkv's documentation and
+% might want to also read the documentation of \expkvd.
+%
+%
+% \subsection{Macros}
+%
+% \expkvo's behaviour if it encounters a defined or an undefined \key\ depends
+% on which list is being parsed and whether the current file is a class or not.
+% Of course in every case a defined \key's callback will be invoked but an
+% additional action might be executed. For this reason the rule set of every
+% macro will be given below the short description which list it will parse. 
+%
+% During each of the processing macros the current list element (not separated
+% in \key\ and \val\ but as a whole) is stored within the macro
+% \cs{CurrentOption}.
+%
+% \begin{function}{\ekvoProcessLocalOptions}
+%   \begin{syntax}
+%     \cs{ekvoProcessLocalOptions}\marg{set}
+%   \end{syntax}
+%   This parses the options which are directly passed to the current class or
+%   package for an \expkv\ \set.
+% \end{function}
+% \begin{description}
+%   \item[Class:]
+%     \begin{description}
+%       \item[defined] \emph{nothing}
+%       \item[undefined]
+%         add the key to the list of unused global options (if the local option
+%         list matches the option list of the main class)
+%     \end{description}
+%   \item[Package:]
+%     \begin{description}
+%       \item[defined] \emph{nothing}
+%       \item[undefined] throw an error
+%     \end{description}
+% \end{description}
+%
+% \begin{function}{\ekvoProcessGlobalOptions}
+%   \begin{syntax}
+%     \cs{ekvoProcessGlobalOptions}\marg{set}
+%   \end{syntax}
+%   In \LaTeXe\ the options given to |\documentclass| are global options. This
+%   macro processes the global options for an \expkv\ \set.
+% \end{function}
+% \begin{description}
+%   \item[Class:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+%   \item[Package:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+% \end{description}
+%
+% \begin{function}{\ekvoProcessUnusedGlobalOptions}
+%   \begin{syntax}
+%     \cs{ekvoProcessUnusedGlobalOptions}\marg{set}
+%   \end{syntax}
+%   If you want to, instead of parsing all global options, you can parse only
+%   those global options which weren't yet used by another package or class.
+% \end{function}
+% \begin{description}
+%   \item[Class:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+%   \item[Package:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+% \end{description}
+%
+% \begin{function}{\ekvoProcessOptionsList}
+%   \begin{syntax}
+%     \cs{ekvoProcessOptionsList}\meta{list}\marg{set}
+%   \end{syntax}
+%   Process the \kv\ list stored in the macro \meta{list}.
+% \end{function}
+% \begin{description}
+%   \item[Class:]
+%     \begin{description}
+%       \item[defined] \emph{nothing}
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+%   \item[Package:]
+%     \begin{description}
+%       \item[defined] \emph{nothing}
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+% \end{description}
+%
+% \begin{function}{\ekvoUseUnknownHandlers}
+%   \begin{syntax}
+%     \cs{ekvoUseUnknownHandlers}\meta{cs_1}\meta{cs_2}
+%   \end{syntax}
+%   With this macro you can change the action \expkvo\ executes if it encounters
+%   an undefined \key\ for the next (and only the next) list processing macro.
+%   The macro \meta{cs_1} will be called if an undefined \key\ without a \val\
+%   is encountered and get one argument, being the \key. Analogous the macro
+%   \meta{cs_2} will be called if an undefined \key\ with a \val\ was specified.
+%   It will get two arguments, the first being the \key\ and the second the
+%   \val.
+% \end{function}
+%
+%
+% \subsection{Example}
+%
+% Let's say we want to create a package that changes the way footnotes are
+% displayed in \LaTeX. For this it will essentially just redefine
+% \cs[no-index]{thefootnote} and we'll call this package \pkg{ex-footnote}.
+% First we report back which package we are:
+% \begin{lstlisting}
+% \ProvidesPackage{ex-footnote}[2020-02-02 v1 change footnotes]
+% \end{lstlisting}
+% Next we'll need to provide the options we want the package to have.
+% \begin{lstlisting}
+% \RequirePackage{color}
+% \RequirePackage{expkv-opt} % also loads expkv
+% \ekvdef{ex-footnote}{color}{\def\exfn@color{#1}}
+% \ekvdef{ex-footnote}{format}{\def\exfn@format{#1}}
+% \end{lstlisting}
+% We can provide initial values just by defining the two macros storing the
+% value.
+% \begin{lstlisting}
+% \newcommand*\exfn@color{}
+% \newcommand*\exfn@format{\arabic}
+% \end{lstlisting}
+% Next we need to process the options given to the package. The package should
+% only obey options directly passed to it, so we're only using
+% |\ekvoProcessLocalOptions|:
+% \begin{lstlisting}
+% \ekvoProcessLocalOptions{ex-footnote}
+% \end{lstlisting}
+% Now everything that's still missing is actually changing the way footnotes
+% appear:
+% \begin{lstlisting}
+% \renewcommand*\thefootnote
+%   {%
+%     \ifx\exfn@color\@empty
+%       \csname\exfn@format\endcsname{footnote}%
+%     \else
+%       \textcolor{\exfn@color}{\csname\exfn@format\endcsname{footnote}}%
+%     \fi
+%   }
+% \end{lstlisting}
+%
+% So the complete code of the package would look like this:
+% \begin{lstlisting}
+% \ProvidesPackage{ex-footnote}[2020-02-02 v1 change footnotes]
+%
+% \RequirePackage{color}
+% \RequirePackage{expkv-opt} % also loads expkv
+%
+% \ekvdef{ex-footnote}{color}{\def\exfn@color{#1}}
+% \ekvdef{ex-footnote}{format}{\def\exfn@format{#1}}
+% \newcommand*\exfn@color{}
+% \newcommand*\exfn@format{arabic}
+%
+% \ekvoProcessLocalOptions{ex-footnote}
+%
+% \renewcommand*\thefootnote
+%   {%
+%     \ifx\exfn@color\@empty
+%       \csname\exfn@format\endcsname{footnote}%
+%     \else
+%       \textcolor{\exfn@color}{\csname\exfn@format\endcsname{footnote}}%
+%     \fi
+%   }
+% \end{lstlisting}
+% And it could be used with one of the following lines:
+% \begin{lstlisting}
+% \usepackage{ex-footnote}
+% \usepackage[format=fnsymbol]{ex-footnote}
+% \usepackage[color=green]{ex-footnote}
+% \usepackage[color=red,format=roman]{ex-footnote}
+% \end{lstlisting}
+%
+%
+% \subsection{License}
+%
+% Copyright \textcopyright\ 2020\unless\ifnum\year=2020--\the\year\fi\
+% Jonathan P. Spratte
+%
+% \medskip\noindent
+% This work may be distributed and/or modified under the conditions of the
+% \LaTeX\ Project Public License (LPPL), either version 1.3c of this license or
+% (at your option) any later version. The latest version of this license is in
+% the file:
+%
+% \url{http://www.latex-project.org/lppl.txt}
+%
+% \noindent
+% This work is ``maintained'' (as per LPPL maintenance status) by
+%
+% \mbox{Jonathan P. Spratte}.
+%
+% \end{documentation}^^A=<<
+%
+% \begin{implementation}^^A>>=
+%
+% \clearpage
+%
+%
+% \section{Implementation}
+%
+% \gobbledocstriptag
+%<*pkg>
+% Start the package with the typical \LaTeX\ standards.
+% 
+% \begin{macro}{\ekvoVersion,\ekvoDate}
+%   Store the packages version and date in two macros.
+%    \begin{macrocode}
+\newcommand*\ekvoVersion{0.1}
+\newcommand*\ekvoDate{2020-07-01}
+%    \end{macrocode}
+% \end{macro}
+% And we report who we are and what we need.
+%    \begin{macrocode}
+\ProvidesPackage{expkv-opt}
+  [%
+    \ekvoDate\space v\ekvoVersion\space
+    parse class and package options with expkv%
+  ]
+\RequirePackage{expkv}
+%    \end{macrocode}
+%
+%
+% \subsection{Loop}
+%
+% \begin{macro}[internal]
+%   {\ekvo@CurrentOption@loop,\ekvo@CurrentOption@loop@,\ekvo@end@loop}
+%   We'll need some loop which can iterate over a comma separated list. The loop
+%   is very basic and only works for commas of category~12. First we set up
+%   everything for the actual loop.
+%    \begin{macrocode}
+\protected\long\def\ekvo@CurrentOption@loop#1#2%
+  {%
+    \ekvo@CurrentOption@loop@#2\ekv@mark#1,\ekv@stop,\ekvo@tail
+  }
+%    \end{macrocode}
+%   Then check whether the final element has been read and if so end the loop.
+%   Else ignore blank elements, set |\CurrentOption| and call the macro which
+%   parses the list elements. Then call the next iteration.
+%    \begin{macrocode}
+\long\def\ekvo@CurrentOption@loop@#1#2,%
+  {%
+    \ekv@gobble@from@mark@to@stop#2\ekvo@end@loop\ekv@stop
+    \ekv@ifblank{#2}%
+      {}%
+      {%
+        \edef\CurrentOption{\unexpanded\expandafter{\@gobble#2}}%
+        #1{#2}%
+      }%
+    \ekvo@CurrentOption@loop@#1\ekv@mark
+  }
+\long\def\ekvo@end@loop#1\ekvo@tail{}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Tests}
+%
+% \begin{macro}[internal]{\ekvo@fi@firstoftwo,\ekvo@fi@gobble}
+%   These two macros are just fast branching macros.
+%    \begin{macrocode}
+\long\def\ekvo@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
+\long\def\ekvo@fi@gobble\fi\@firstofone#1{\fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@ifx@TF,\ekvo@ifx@F}
+%   We'll need branching |\ifx| tests so that user input containing unbalanced
+%   \TeX\ ifs doesn't break (at least not because of us, everything else is the
+%   fault of \LaTeXe).
+%    \begin{macrocode}
+\def\ekvo@ifx@TF#1#2{\ifx#1#2\ekvo@fi@firstoftwo\fi\@secondoftwo}
+\def\ekvo@ifx@F#1#2{\ifx#1#2\ekvo@fi@gobble\fi\@firstofone}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{macro}[internal]{\ekvo@do@with@set,\ekvo@name,\ekvo@setname}
+%   This test checks whether the \set\ is defined.  If it is we store it in
+%   |\ekvo@setname| and set |\ekvo@name| to a short cut to get the \key's
+%   callback name. Next we execute the code in |#2|, if the \set\ isn't defined
+%   |#2| is gobbled.
+%    \begin{macrocode}
+\protected\def\ekvo@do@with@set#1#2%
+  {%
+    \ekv@ifdefined{\ekv@undefined@set{#1}}%
+      {%
+        \expandafter
+        \let\expandafter\ekvo@name\csname\ekv@undefined@set{#1}\endcsname
+        \def\ekvo@setname{#1}%
+        #2%
+      }%
+      {\ekvo@err@undefined@set{#1}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Key handlers}
+%
+% \expkvo\ uses handlers specifying what happens if a parsed \key\ is defined or
+% undefined.
+%
+% \begin{macro}[internal]
+%   {\ekvo@handle@undefined@k@pkg,\ekvo@handle@undefined@kv@pkg}
+%   The case for undefined keys in a local list of a package is easy, just throw
+%   appropriate errors.
+%    \begin{macrocode}
+\protected\long\def\ekvo@handle@undefined@k@pkg#1%
+  {%
+    \ekv@ifdefined{\ekvo@name{#1}}%
+      {\ekvo@err@value@required{#1}}%
+      {\ekvo@err@undefined@key{#1}}%
+  }
+\def\ekvo@handle@undefined@kv@pkg#1#2%
+  {%
+    \ekv@ifdefined{\ekvo@name{#1}N}%
+      {\ekvo@err@value@forbidden{#1}}%
+      {\ekvo@err@undefined@key{#1}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]
+%   {
+%     \ekvo@addto@unused@one,\ekvo@addto@unused@two,
+%     \ekvo@rmfrom@unused@one,\ekvo@rmfrom@unused@two
+%   }
+%   These macros will add or remove the |\CurrentOption| to or from the list of
+%   unused global options.
+%    \begin{macrocode}
+\long\def\ekvo@addto@unused@one#1{\ekvo@addto@list\@unusedoptionlist}
+\long\def\ekvo@addto@unused@two#1#2{\ekvo@addto@list\@unusedoptionlist}
+\long\def\ekvo@rmfrom@unused@one#1{\ekvo@rmfrom@list\@unusedoptionlist}
+\long\def\ekvo@rmfrom@unused@two#1#2{\ekvo@rmfrom@list\@unusedoptionlist}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}[internal]
+%   {
+%     \ekvo@set@handlers@local,\ekvo@set@handlers@global,
+%     \ekvo@set@handlers@unusedglobal,\ekvo@set@handlers@list
+%   }
+%   These macros are boring. They just set up the handlers to respect the rules
+%   documented earlier.
+%    \begin{macrocode}
+\protected\def\ekvo@set@handlers@local
+  {%
+    \ekvo@if@need@handlers
+      {%
+        \ifx\@currext\@clsextension
+          \ifx\@classoptionslist\relax
+            \let\ekvo@handle@undefined@k\@gobble
+            \let\ekvo@handle@undefined@kv\@gobbletwo
+          \else
+            \expandafter
+            \ifx\csname opt@\@currname.\@currext\endcsname\@classoptionslist
+              \let\ekvo@handle@undefined@k\ekvo@addto@unused@one
+              \let\ekvo@handle@undefined@kv\ekvo@addto@unused@two
+            \else
+              \let\ekvo@handle@undefined@k\@gobble
+              \let\ekvo@handle@undefined@kv\@gobbletwo
+            \fi
+          \fi
+        \else
+          \let\ekvo@handle@undefined@k\ekvo@handle@undefined@k@pkg
+          \let\ekvo@handle@undefined@kv\ekvo@handle@undefined@kv@pkg
+        \fi
+      }%
+  }
+\protected\def\ekvo@set@handlers@global
+  {%
+    \unless\ifx\@unusedoptionlist\@empty
+      \let\ekvo@handle@defined@k\ekvo@rmfrom@unused@one
+      \let\ekvo@handle@defined@kv\ekvo@rmfrom@unused@two
+    \fi
+    \ekvo@if@need@handlers
+      {%
+        \let\ekvo@handle@undefined@k\@gobble
+        \let\ekvo@handle@undefined@kv\@gobbletwo
+      }%
+  }
+\protected\def\ekvo@set@handlers@unusedglobal
+  {%
+    \ekvo@if@need@handlers
+      {%
+        \let\ekvo@handle@undefined@k\ekvo@addto@unused@one
+        \let\ekvo@handle@undefined@kv\ekvo@addto@unused@two
+        \let\@unusedoptionlist\@empty
+        \@gobbletwo
+      }%
+    \@firstofone
+      {%
+        \let\ekvo@handle@defined@k\ekvo@rmfrom@unused@one
+        \let\ekvo@handle@defined@kv\ekvo@rmfrom@unused@two
+      }%
+  }
+\protected\def\ekvo@set@handlers@list
+  {%
+    \ekvo@if@need@handlers
+      {%
+        \let\ekvo@handle@undefined@k\@gobble
+        \let\ekvo@handle@undefined@kv\@gobbletwo
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@if@need@handlers,\ekvo@dont@need@handlers}
+%   If the user specifies handlers this macro will be let to
+%   |\ekvo@dont@need@handlers|, which will act like |\@gobble| and also let it
+%   to |\@firstofone| afterwards.
+%    \begin{macrocode}
+\let\ekvo@if@need@handlers\@firstofone
+\protected\long\def\ekvo@dont@need@handlers#1%
+  {%
+    \let\ekvo@if@need@handlers\@firstofone
+  }%
+%    \end{macrocode}
+% \end{macro}
+%
+% We have to set the default for the handlers of defined keys, because they
+% don't necessarily get defined before a list is parsed.
+%    \begin{macrocode}
+\let\ekvo@handle@defined@k\@gobble
+\let\ekvo@handle@defined@kv\@gobbletwo
+%    \end{macrocode}
+%
+%
+% \subsection{Processing list elements}
+%
+% \begin{macro}[internal]{\ekvo@process@common}
+%   All the key processing frontend macros use the same basic structure. |#1|
+%   will be a simple test, deciding whether the list will really be parsed or
+%   not, |#3| will be the \set, and |#2| will be the individual code of the
+%   frontend macro which should be executed if both the test in |#1| is true and
+%   the \set\ is defined.
+%    \begin{macrocode}
+\protected\def\ekvo@process@common#1#2#3%
+  {%
+    #1{\ekvo@do@with@set{#3}{#2}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@process@list}
+%   This macro only expands the list holding macro and forwards it to the
+%   loop macro.
+%    \begin{macrocode}
+\protected\def\ekvo@process@list#1%
+  {%
+    \expandafter\ekvo@CurrentOption@loop\expandafter{#1}\ekvo@parse
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@parse}
+%   This macro calls internals of |\ekvparse| such that the code splitting at
+%   commas isn't executed, else this is equivalent to
+%   |\ekvparse\ekvo@set@k\ekvo@set@kv{#1}|.
+%    \begin{macrocode}
+\long\def\ekvo@parse#1%
+  {%
+    \ekv@eq@other#1\ekv@nil\ekv@mark\ekv@parse@eq@other@a
+      =\ekv@mark\ekv@parse@eq@active\ekv@stop
+    \ekvo@set@k\ekvo@set@kv
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@set@k,\ekvo@set@kv}
+%   These two macros check whether the key is defined and if so call the handler
+%   for defined keys and execute the key, else the handler for undefined keys is
+%   called.
+%    \begin{macrocode}
+\protected\def\ekvo@set@k#1%
+  {%
+    \ekv@ifdefined{\ekvo@name{#1}N}%
+      {%
+        \ekvo@handle@defined@k{#1}%
+        \csname\ekvo@name{#1}N\endcsname
+      }%
+      {\ekvo@handle@undefined@k{#1}}%
+  }
+\protected\def\ekvo@set@kv#1#2%
+  {%
+    \ekv@ifdefined{\ekvo@name{#1}}%
+      {%
+        \ekvo@handle@defined@kv{#1}{#2}%
+        \csname\ekvo@name{#1}\endcsname{#2}%
+      }%
+      {\ekvo@handle@undefined@kv{#1}{#2}}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{List variable helpers}
+%
+% \begin{macro}[internal]{\ekvo@addto@list}
+%   This macro is rather simple. If the list to which the |\CurrentOption|
+%   should be added is empty we can just let the list to the |\CurrentOption|.
+%   Else we have to expand the list once and the |\CurrentOption| once.
+%    \begin{macrocode}
+\protected\def\ekvo@addto@list#1%
+  {%
+    \ekvo@ifx@TF#1\@empty
+      {\let#1\CurrentOption}%
+      {%
+        \edef#1%
+          {%
+            \unexpanded\expandafter{#1},%
+            \unexpanded\expandafter{\CurrentOption}%
+          }%
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[internal]{\ekvo@rmfrom@list,\ekvo@rmfrom@list@}
+%   This works by looping over every list item and comparing it to
+%   |\ekvo@curropt| which stores the real |\CurrentOption|. This is
+%   comparatively slow, but works for items containing braces unlike what
+%   \LaTeXe\ does. We could be faster for items not containing braces, though.
+%    \begin{macrocode}
+\protected\def\ekvo@rmfrom@list#1%
+  {%
+    \ekvo@ifx@F#1\@empty
+      {%
+        \let\ekvo@tmp@list\@empty
+        \let\ekvo@curropt\CurrentOption
+        \expandafter\ekvo@CurrentOption@loop\expandafter{#1}\ekvo@rmfrom@list@
+        \let\CurrentOption\ekvo@curropt
+        \let#1\ekvo@tmp@list
+      }%
+  }
+\protected\long\def\ekvo@rmfrom@list@#1%
+  {%
+    \ekvo@ifx@F\CurrentOption\ekvo@curropt
+      {\ekvo@addto@list\ekvo@tmp@list}%
+  }
+%    \end{macrocode}
+%^^A% remove only the first match:
+%^^A\protected\long\def\ekvo@rmfrom@list@#1%
+%^^A  {%
+%^^A    \ekvo@ifx@TF\CurrentOption\ekvo@curropt
+%^^A      \ekvo@rmfrom@list@add@rest
+%^^A      \ekvo@addto@list
+%^^A      \ekvo@tmp@list
+%^^A  }
+%^^A\protected\long\def\ekvo@rmfrom@list@add@rest
+%^^A    #1#2\ekvo@CurrentOption@loop@#3\ekv@mark
+%^^A  {%
+%^^A    \ekvo@rmfrom@list@add@rest@a#1,%
+%^^A  }
+%^^A\protected\long\def\ekvo@rmfrom@list@add@rest@a#1#2,\ekv@stop,%
+%^^A  {%
+%^^A    \ekv@ifempty{#2}%
+%^^A      {}%
+%^^A      {%
+%^^A        \edef\CurrentOption{\unexpanded\expandafter{\@gobble#2}}%
+%^^A        \ekvo@addto@list#1%
+%^^A      }%
+%^^A  }
+% \end{macro}
+%
+%
+% \subsection{Errors}
+%
+% \begin{macro}[internal]
+%   {
+%     \ekvo@err@undefined@key,\ekvo@err@value@required,
+%     \ekvo@err@value@forbidden,\ekvo@err@undefined@set
+%   }
+%   Just some macros to throw errors in the few cases an error has to be thrown.
+%    \begin{macrocode}
+\protected\def\ekvo@err@undefined@key#1%
+  {%
+    \PackageError{expkv-opt}{Undefined key `#1' in set `\ekvo@setname'}{}%
+  }
+\protected\def\ekvo@err@value@required#1%
+  {%
+    \PackageError{expkv-opt}%
+      {Value required for key `#1' in set `\ekvo@setname'}%
+      {}%
+  }
+\protected\def\ekvo@err@value@forbidden#1%
+  {%
+    \PackageError{expkv-opt}%
+      {Value forbidden for key `#1' in set `\ekvo@setname'}%
+      {}%
+  }
+\protected\def\ekvo@err@undefined@set#1%
+  {%
+    \PackageError{expkv-opt}%
+      {Undefined set `#1'}%
+      {The set for which you try to parse options isn't defined in expkv.}%
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{User Interface}
+%
+% The user interface macros just put together the bits and pieces.
+% \begin{macro}{\ekvoProcessLocalOptions}
+%    \begin{macrocode}
+\protected\def\ekvoProcessLocalOptions
+  {%
+    \ekvo@process@common
+      {\ekv@ifdefined{opt@\@currname.\@currext}\@firstofone\@gobble}%
+      {%
+        \ekvo@set@handlers@local
+        \expandafter
+        \ekvo@process@list\csname opt@\@currname.\@currext\endcsname
+        \AtEndOfPackage{\let\@unprocessedoptions\relax}%
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvoProcessGlobalOptions}
+%    \begin{macrocode}
+\protected\def\ekvoProcessGlobalOptions
+  {%
+    \ekvo@process@common{\ekvo@ifx@F\@classoptionslist\relax}%
+      {%
+        \ekvo@set@handlers@global
+        \ekvo@process@list\@classoptionslist
+        \let\ekvo@handle@defined@k\@gobble
+        \let\ekvo@handle@defined@kv\@gobbletwo
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvoProcessUnusedGlobalOptions}
+%    \begin{macrocode}
+\protected\def\ekvoProcessUnusedGlobalOptions
+  {%
+    \ekvo@process@common{\ekvo@ifx@F\@unusedoptionlist\@empty}%
+      {%
+        \let\ekvo@tmp@list\@unusedoptionlist
+        \ekvo@set@handlers@unusedglobal
+        \ekvo@process@list\ekvo@tmp@list
+        \let\ekvo@handle@defined@k\@gobble
+        \let\ekvo@handle@defined@kv\@gobbletwo
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvoProcessOptionsList}
+%    \begin{macrocode}
+\protected\def\ekvoProcessOptionsList#1%
+  {%
+    \ekvo@process@common{\ekvo@ifx@F#1\@empty}%
+      {%
+        \ekvo@set@handlers@list
+        \ekvo@process@list#1%
+      }%
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\ekvoUseUnknownHandlers}
+%    \begin{macrocode}
+\protected\def\ekvoUseUnknownHandlers#1#2%
+  {%
+    \let\ekvo@handle@undefined@k#1\relax
+    \let\ekvo@handle@undefined@kv#2\relax
+    \let\ekvo@if@need@handlers\ekvo@dont@need@handlers
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% All user interface macros should be only used in the preamble.
+%    \begin{macrocode}
+\@onlypreamble\ekvoProcessLocalOptions
+\@onlypreamble\ekvoProcessGlobalOptions
+\@onlypreamble\ekvoProcessUnusedGlobalOptions
+\@onlypreamble\ekvoProcessOptionsList
+\@onlypreamble\ekvoUseUnknownHandlers
+%    \end{macrocode}
+% 
+% \gobbledocstriptag
+%</pkg>
+%
+% \end{implementation}^^A=<<
+%
+% \clearpage
+% \PrintIndex
+%
+\endinput
+%
+^^A vim: ft=tex fdm=marker fmr=>>=,=<<
