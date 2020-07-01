@@ -791,28 +791,6 @@ and the derived files           expkv-opt.pdf
       {\ekvo@addto@list\ekvo@tmp@list}%
   }
 %    \end{macrocode}
-%^^A% remove only the first match:
-%^^A\protected\long\def\ekvo@rmfrom@list@#1%
-%^^A  {%
-%^^A    \ekvo@ifx@TF\CurrentOption\ekvo@curropt
-%^^A      \ekvo@rmfrom@list@add@rest
-%^^A      \ekvo@addto@list
-%^^A      \ekvo@tmp@list
-%^^A  }
-%^^A\protected\long\def\ekvo@rmfrom@list@add@rest
-%^^A    #1#2\ekvo@CurrentOption@loop@#3\ekv@mark
-%^^A  {%
-%^^A    \ekvo@rmfrom@list@add@rest@a#1,%
-%^^A  }
-%^^A\protected\long\def\ekvo@rmfrom@list@add@rest@a#1#2,\ekv@stop,%
-%^^A  {%
-%^^A    \ekv@ifempty{#2}%
-%^^A      {}%
-%^^A      {%
-%^^A        \edef\CurrentOption{\unexpanded\expandafter{\@gobble#2}}%
-%^^A        \ekvo@addto@list#1%
-%^^A      }%
-%^^A  }
 % \end{macro}
 %
 %
