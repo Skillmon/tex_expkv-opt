@@ -1,0 +1,85 @@
+\input{regression-test}
+
+\RequirePackage{expkv-opt}
+
+\START
+\OMIT
+\makeatletter
+\newcommand*\SHOWLIST[1]{\TYPE{\meaning#1}\NEWLINE}
+\newcommand\setoptions[2][\relax]
+  {%
+    \ifx\relax#1%
+    \else
+      \def\@currext{#1}%
+    \fi
+    \expandafter\def\csname opt@\@currname.\@currext\endcsname{#2}%
+  }
+
+\ekvdefNoVal{known set}{keyA}{}
+\ekvdef{known set}{keyB}{}
+
+\ekvdef{no key set}{zzz}{}
+
+\ekvdef{set c}{keyC}{}
+
+\ekvdefNoVal{typeout}{keyA}{\TRUE}
+\ekvdef{typeout}{keyB}{\TYPE{#1}}
+\ekvdef{typeout}{keyC}{\TYPE{#1}}
+
+\setoptions[cls]{keyA,keyB=value,keyC={value, with a comma}}
+\TIMO
+
+\TEST{unknown local but not main class}
+  {%
+    \ekvoProcessLocalOptions{no key set}% all options are unknown...
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\OMIT
+\expandafter
+\let\expandafter\@classoptionslist\csname opt@\@currname.\@currext\endcsname
+\TIMO
+
+\TEST{unknown local options}
+  {%
+    \ekvoProcessLocalOptions{no key set}% all options are unknown...
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\TEST{different handlers}
+  {%
+    \ekvoUseUnknownHandlers\@gobble\@gobbletwo
+    \ekvoProcessLocalOptions{no key set}% all options are unknown...
+    \SHOWLIST\@unusedoptionlist
+    \ekvoProcessLocalOptions{no key set}% all options are unknown...
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\OMIT
+\def\@unusedoptionlist{keyA,keyB=value,keyC={value, with a comma}}
+\TIMO
+
+\TEST{global options}
+  {%
+    \ekvoProcessGlobalOptions{known set}% should know keyA and keyB
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\TEST{unused global options}
+  {%
+    \ekvoProcessUnusedGlobalOptions{set c}% should know keyC
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\TEST{known local options}
+  {%
+    \ekvoProcessLocalOptions{known set}% should know all keys
+    \SHOWLIST\@unusedoptionlist
+  }
+
+\TEST{correct values}
+  {%
+    \ekvoProcessLocalOptions{typeout}% should only type out the values
+  }
+
+\END

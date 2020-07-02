@@ -1,0 +1,82 @@
+\input{regression-test}
+
+\RequirePackage{expkv-opt}
+
+\START
+\OMIT
+\makeatletter
+\newcommand*\mylist{}
+\newcommand*\setoption[1]{\def\CurrentOption{#1}}
+\newcommand*\SHOWLIST[1]{\TYPE{\meaning#1}\NEWLINE}
+\TIMO
+
+\TEST{add to list}
+  {%
+    \setoption{A}%
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+    \setoption{B}%
+    \ekvo@addto@list\mylist
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+    \setoption{C}%
+    \ekvo@addto@list\mylist
+    \ekvo@addto@list\mylist
+    \setoption{B}%
+    \ekvo@addto@list\mylist
+    \setoption{C}%
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+    \setoption{{D}}%
+    \ekvo@addto@list\mylist
+    \setoption{A{D}}%
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+    \setoption{\iffalse}%
+    \ekvo@addto@list\mylist
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+    \setoption{\fi}%
+    \ekvo@addto@list\mylist
+    \SHOWLIST\mylist
+  }
+
+\OMIT
+\def\mylist{A,B,B,C,C,B,C,{D},A{D},\iffalse,\iffalse,\fi}
+\TIMO
+
+\TEST{remove from list}
+  {%
+    \SHOWLIST\mylist
+    \setoption{B}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{C}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{A}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{\iffalse}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{{A}}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{{D}}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{A{}}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{A{D}}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+    \setoption{\fi}%
+    \ekvo@rmfrom@list\mylist
+    \SHOWLIST\mylist
+  }
+
+\END

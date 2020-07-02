@@ -479,17 +479,18 @@ and the derived files           expkv-opt.pdf
 % \begin{macro}[internal]
 %   {\ekvo@CurrentOption@loop,\ekvo@CurrentOption@loop@,\ekvo@end@loop}
 %   We'll need some loop which can iterate over a comma separated list. The loop
-%   is very basic and only works for commas of category~12. First we set up
-%   everything for the actual loop.
+%   is very basic and only works for commas of category~12. First we insert the
+%   delimiters for the actual loop.
 %    \begin{macrocode}
 \protected\long\def\ekvo@CurrentOption@loop#1#2%
   {%
     \ekvo@CurrentOption@loop@#2\ekv@mark#1,\ekv@stop,\ekvo@tail
   }
 %    \end{macrocode}
-%   Then check whether the final element has been read and if so end the loop.
-%   Else ignore blank elements, set |\CurrentOption| and call the macro which
-%   parses the list elements. Then call the next iteration.
+%   The actual loop checks whether the final element has been read and if so
+%   ends the loop. Else blank elements are ignored, |\CurrentOption| is set and
+%   the macro which parses the list elements called. Then call the next
+%   iteration.
 %    \begin{macrocode}
 \long\def\ekvo@CurrentOption@loop@#1#2,%
   {%

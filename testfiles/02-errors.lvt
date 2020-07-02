@@ -1,0 +1,30 @@
+\input{regression-test}
+
+\RequirePackage{expkv-opt}
+
+\START
+\OMIT
+\makeatletter
+\newcommand\setoptions[2][\relax]
+  {%
+    \ifx\relax#1%
+    \else
+      \def\@currext{#1}%
+    \fi
+    \expandafter\def\csname opt@\@currname.\@currext\endcsname{#2}%
+  }
+\ekvdef{known set}{keyA}{}
+\ekvdefNoVal{known set}{keyB}{}
+\setoptions[pkg]{keyA,keyB=value,keyC={value, with a comma}}
+\TIMO
+
+\TEST{unknown set}
+  {%
+    \ekvoProcessLocalOptions{undefined set}%
+  }
+\TEST{undefined pkg keys}
+  {%
+    \ekvoProcessLocalOptions{known set}%
+  }
+
+\END
