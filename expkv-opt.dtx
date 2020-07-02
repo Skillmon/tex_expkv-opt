@@ -175,7 +175,10 @@ and the derived files           expkv-opt.pdf
 \DoNotIndex{\protected,\ProvidesFile,\ProvidesPackage,\relax,\space}
 \DoNotIndex{\@,\unexpanded,\string,\expanded,\dimexpr,\global,\glueexpr,\hbox}
 \DoNotIndex{\numexpr,\RequirePackage,\setbox,\the,\unless,\xdef,\@firstofone}
-\DoNotIndex{\@firstoftwo,\@gobble,\@secondoftwo}
+\DoNotIndex{\@firstoftwo,\@gobble,\@secondoftwo,\AtEndOfPackage,\newcommand}
+\DoNotIndex{\PackageError,\@classoptionslist,\@clsextension,\@currext}
+\DoNotIndex{\@currname,\@empty,\@gobbletwo,\@onlypreamble,\@unprocessedoptions}
+\DoNotIndex{\@unusedoptionlist}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
 \DoNotIndex{\ifdefined}
@@ -212,10 +215,10 @@ and the derived files           expkv-opt.pdf
 % \begin{abstract}
 % \noindent\parfillskip=0pt
 % \expkvo\ provides option parsing for classes and packages in \LaTeXe\ based on
-% \expkv. It provides individual parsing of global and local options. The
-% stylised name is \expkvo\ but the files use \file{expkv-opt}, this is due to
-% CTAN-rules which don't allow \string| in package names since that is the pipe
-% symbol in *nix shells.
+% \expkv. Global and local options are parsed individually by different
+% commands. The stylised name is \expkvo\ but the files use \file{expkv-opt},
+% this is due to CTAN-rules which don't allow \string| in package names since
+% that is the pipe symbol in *nix shells.
 % \end{abstract}
 %
 % \tableofcontents
@@ -224,15 +227,18 @@ and the derived files           expkv-opt.pdf
 %
 % \section{Documentation}
 %
-% The \expkv\ family provides at its core a \kv\ parser and additionally a
-% package to conveniently define new keys (\expkvd) and a package to build
+% The \expkv\ family provides at its core a \kv\ parser and additionally
+% packages, one to conveniently define new keys (\expkvd) and another to build
 % expandable \kv\ taking control sequences (\expkvc). Still missing from the mix
 % was a solution to parse \LaTeXe\ class and package options, a gap that's
 % hereby filled with \expkvo.
 %
 % \expkvo\ shouldn't place any restrictions on the keys, but note that parts of
 % \LaTeXe\ can break if the \kv\ list contains braces. This includes the global
-% options list depending on which class you're using.
+% options list depending on which class you're using. Also keep in mind that
+% every value provided should be save from an |\edef| expansion, as the space
+% stripping code of \LaTeXe\ options (which is applied before \expkvo\ takes
+% control) uses such an expansion.
 %
 % The package can be loaded with
 % \begin{lstlisting}
@@ -351,6 +357,10 @@ and the derived files           expkv-opt.pdf
 %   \val.
 % \end{function}
 %
+% \begin{function}{\ekvoVersion,\ekvoDate}
+%   These two macros store the version and date of the package.
+% \end{function}
+%
 %
 % \subsection{Example}
 %
@@ -372,7 +382,7 @@ and the derived files           expkv-opt.pdf
 % value.
 % \begin{lstlisting}
 % \newcommand*\exfn@color{}
-% \newcommand*\exfn@format{\arabic}
+% \newcommand*\exfn@format{arabic}
 % \end{lstlisting}
 % Next we need to process the options given to the package. The package should
 % only obey options directly passed to it, so we're only using
@@ -392,7 +402,9 @@ and the derived files           expkv-opt.pdf
 %     \fi
 %   }
 % \end{lstlisting}
+% \bigskip
 %
+% \noindent
 % So the complete code of the package would look like this:
 % \begin{lstlisting}
 % \ProvidesPackage{ex-footnote}[2020-02-02 v1 change footnotes]
@@ -416,6 +428,9 @@ and the derived files           expkv-opt.pdf
 %     \fi
 %   }
 % \end{lstlisting}
+% \bigskip
+%
+% \noindent
 % And it could be used with one of the following lines:
 % \begin{lstlisting}
 % \usepackage{ex-footnote}
@@ -423,6 +438,13 @@ and the derived files           expkv-opt.pdf
 % \usepackage[color=green]{ex-footnote}
 % \usepackage[color=red,format=roman]{ex-footnote}
 % \end{lstlisting}
+%
+%
+% \subsection{Bugs}
+%
+% If you happen to find bugs, it'd be great if you let me know. Just write me an
+% email (see the front page) or submit a bug report on GitHub:
+% \url{https://github.com/Skillmon/tex_expkv-opt}
 %
 %
 % \subsection{License}
