@@ -532,21 +532,13 @@ and the derived files           expkv-opt.pdf
 %
 % \subsection{Tests}
 %
-% \begin{macro}[internal]{\ekvo@fi@firstoftwo,\ekvo@fi@gobble}
-%   These two macros are just fast branching macros.
-%    \begin{macrocode}
-\long\def\ekvo@fi@firstoftwo\fi\@secondoftwo#1#2{\fi#1}
-\long\def\ekvo@fi@gobble\fi\@firstofone#1{\fi}
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}[internal]{\ekvo@ifx@TF,\ekvo@ifx@F}
 %   We'll need branching |\ifx| tests so that user input containing unbalanced
 %   \TeX\ ifs doesn't break (at least not because of us, everything else is the
 %   fault of \LaTeXe).
 %    \begin{macrocode}
-\def\ekvo@ifx@TF#1#2{\ifx#1#2\ekvo@fi@firstoftwo\fi\@secondoftwo}
-\def\ekvo@ifx@F#1#2{\ifx#1#2\ekvo@fi@gobble\fi\@firstofone}
+\def\ekvo@ifx@TF#1#2{\ifx#1#2\ekv@fi@firstoftwo\fi\@secondoftwo}
+\def\ekvo@ifx@F#1#2{\ifx#1#2\ekv@fi@gobble\fi\@firstofone}
 %    \end{macrocode}
 % \end{macro}
 % 
@@ -558,7 +550,7 @@ and the derived files           expkv-opt.pdf
 %    \begin{macrocode}
 \protected\def\ekvo@do@with@set#1#2%
   {%
-    \ekv@ifdefined{\ekv@undefined@set{#1}}%
+    \ekvifdefinedset{#1}%
       {%
         \expandafter
         \let\expandafter\ekvo@name\csname\ekv@undefined@set{#1}\endcsname
