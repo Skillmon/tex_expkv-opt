@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 # expkv-opt -- parse class and package options with expkv
 
-Version 2020-07-02 v0.1
+Version 2020-07-04 v0.1a
 
 Released under the LaTeX Project Public License v1.3c or later
 See http://www.latex-project.org/lppl.txt
