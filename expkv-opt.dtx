@@ -481,8 +481,8 @@ and the derived files           expkv-opt.pdf
 % \begin{macro}{\ekvoVersion,\ekvoDate}
 %   Store the packages version and date in two macros.
 %    \begin{macrocode}
-\newcommand*\ekvoVersion{0.1a}
-\newcommand*\ekvoDate{2020-07-04}
+\newcommand*\ekvoVersion{0.1b}
+\newcommand*\ekvoDate{2020-10-10}
 %    \end{macrocode}
 % \end{macro}
 % And we report who we are and what we need.
@@ -725,11 +725,12 @@ and the derived files           expkv-opt.pdf
 %   commas isn't executed, else this is equivalent to
 %   |\ekvparse\ekvo@set@k\ekvo@set@kv{#1}|.
 %    \begin{macrocode}
-\long\def\ekvo@parse#1%
+\protected\long\def\ekvo@parse#1%
   {%
     \ekv@eq@other#1\ekv@nil\ekv@mark\ekv@parse@eq@other@a
-      =\ekv@mark\ekv@parse@eq@active\ekv@stop
+      =\ekv@mark\ekv@parse@eq@active
     \ekvo@set@k\ekvo@set@kv
+    \ekvo@tail
   }
 %    \end{macrocode}
 % \end{macro}
@@ -737,9 +738,9 @@ and the derived files           expkv-opt.pdf
 % \begin{macro}[internal]{\ekvo@set@k,\ekvo@set@kv}
 %   These two macros check whether the key is defined and if so call the handler
 %   for defined keys and execute the key, else the handler for undefined keys is
-%   called.
+%   called. They have to clean up a bit of code which is left by |\ekvo@parse|.
 %    \begin{macrocode}
-\protected\def\ekvo@set@k#1%
+\protected\def\ekvo@set@k#1#2\ekvo@tail
   {%
     \ekv@ifdefined{\ekvo@name{#1}N}%
       {%
@@ -748,7 +749,7 @@ and the derived files           expkv-opt.pdf
       }%
       {\ekvo@handle@undefined@k{#1}}%
   }
-\protected\def\ekvo@set@kv#1#2%
+\protected\def\ekvo@set@kv#1#2#3\ekvo@tail
   {%
     \ekv@ifdefined{\ekvo@name{#1}}%
       {%
