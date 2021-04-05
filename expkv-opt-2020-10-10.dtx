@@ -47,7 +47,7 @@ and the derived files           expkv-opt.pdf
 % stop docstrip adding \endinput
 \postamble
 \endpostamble
-\generate{\file{expkv-opt.sty}{\from{expkv-opt.dtx}{pkg}}}
+\generate{\file{expkv-opt-2020-10-10.sty}{\from{expkv-opt-2020-10-10.dtx}{pkg}}}
 \ifx\fmtname\nameofplainTeX
   \expandafter\endbatchfile
 \else
@@ -151,6 +151,24 @@ and the derived files           expkv-opt.pdf
 \newcommand\key{\meta{key}}
 \newcommand\val{\meta{value}}
 \newcommand\set{\meta{set}}
+\newcommand\enfprot{\textcolor{black}{protected}}
+\newcommand\allprot{\textcolor{gray}{protected}}
+\newcommand\notprot{\textcolor{red!80!black}{protected}}
+\newcommand\enflong{\textcolor{black}{long}}
+\newcommand\alllong{\textcolor{gray}{long}}
+\newcommand\notlong{\textcolor{red!80!black}{long}}
+\newcommand\prefixes[2]
+  {^^A
+    \hfill
+    \ifcase\numexpr#1\relax\or
+      \enfprot\or
+      \allprot\or
+      \notprot\fi\space
+    \ifcase\numexpr#2\relax\or
+      \enflong\or
+      \alllong\or
+      \notlong\fi
+  }
 \hypersetup{linkcolor=red!80!black,urlcolor=purple!80!black}
 \DoNotIndex{\def,\edef,\,,\=,\begingroup,\catcode,\chardef,\csname,\endcsname}
 \DoNotIndex{\endgroup,\endinput,\errmessage,\expandafter,\input,\let,\long}
@@ -159,20 +177,15 @@ and the derived files           expkv-opt.pdf
 \DoNotIndex{\numexpr,\RequirePackage,\setbox,\the,\unless,\xdef,\@firstofone}
 \DoNotIndex{\@firstoftwo,\@gobble,\@secondoftwo,\AtEndOfPackage,\newcommand}
 \DoNotIndex{\PackageError,\@classoptionslist,\@clsextension,\@currext}
-\DoNotIndex{\@currname,\@empty,\@gobbletwo,\@onlypreamble,\@raw@classoptionslist}
-\DoNotIndex{\@unprocessedoptions,\@unusedoptionlist}
-\DoNotIndex{\DeclareRelease,\DeclareCurrentRelease,\IfFormatAtLeastTF}
-\DoNotIndex{\PackageWarning,\requestedLaTeXdate,\@ifstar}
-\DoNotIndex{\pkgcls@parse@date@arg,\pkgcls@targetdate,\pkgcls@targetlabel}
+\DoNotIndex{\@currname,\@empty,\@gobbletwo,\@onlypreamble,\@unprocessedoptions}
+\DoNotIndex{\@unusedoptionlist}
 \DoNotIndex{\ifcsname}
 \DoNotIndex{\ifx}
 \DoNotIndex{\ifdefined}
 \DoNotIndex{\iffalse}
 \DoNotIndex{\iftrue}
-\DoNotIndex{\ifnum}
 \DoNotIndex{\else}
 \DoNotIndex{\fi}
-\@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
 \@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
 \@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
 \@gobble\fi ^^A ignoring \ifx, \ifcsname, etc., but only one \fi
@@ -220,34 +233,17 @@ and the derived files           expkv-opt.pdf
 % was a solution to parse \LaTeXe\ class and package options, a gap that's
 % hereby filled with \expkvo.
 %
-% With the 2021-05-01 release of \LaTeXe\ there were some very interesting
-% changes to the package and class options code. It is now possible to use
-% braces inside the options, and we can access options without them being
-% preprocessed. As a result, some but not all restrictions were lifted from the
-% possible option usage. What will still fail is things that aren't save from an
-% |\edef| expansion. One thing that doesn't work any more is the possibility to
-% parse the unused option list, because that one doesn't contain the full
-% information any more.
-%
-% \expkvo\ will fall back to v0.1 if the kernel is older than 2021-05-01.
-% \expkvo\ shouldn't place any restrictions on the keys, historic shortcomings
-% of the kernel cannot be helped though, so the supported things vary with the
-% kernel version. The one thing that \expkvo\ doesn't support, which \expkv\
-% alone would, is active commas. But there is no good reason why a comma could
-% be active in the preamble.
+% \expkvo\ shouldn't place any restrictions on the keys, but note that parts of
+% \LaTeXe\ can break if the \kv\ list contains braces. This includes the global
+% options list depending on which class you're using. Also keep in mind that
+% every value provided should be save from an |\edef| expansion, as the space
+% stripping code of \LaTeXe\ options (which is applied before \expkvo\ takes
+% control) uses such an expansion.
 %
 % The package can be loaded with
 % \begin{lstlisting}
 % \usepackage{expkv-opt}
 % \end{lstlisting}
-% and if you need a specific version you can use \LaTeXe's rollback support, so
-% to load v0.1 explicitly use:
-% \begin{lstlisting}
-% \usepackage{expkv-opt}[=v0.1]
-% \end{lstlisting}
-% which will load the latest subversion of v0.1
-% (this shouldn't be done by a package author, but only by a user on a
-% single-document basis if there are some incompatibilities, which is unlikely)
 % Unlike the other packages in the \expkv\ family, \expkvo\ is only provided as
 % a \LaTeX\ package.
 %
@@ -263,8 +259,9 @@ and the derived files           expkv-opt.pdf
 % additional action might be executed. For this reason the rule set of every
 % macro will be given below the short description which list it will parse. 
 %
-% During each of the processing macros the current list element (not processed
-% in any way) is stored within the macro \cs{CurrentOption}.
+% During each of the processing macros the current list element (not separated
+% in \key\ and \val\ but as a whole) is stored within the macro
+% \cs{CurrentOption}.
 %
 % \begin{function}{\ekvoProcessLocalOptions}
 %   \begin{syntax}
@@ -312,10 +309,21 @@ and the derived files           expkv-opt.pdf
 %   \begin{syntax}
 %     \cs{ekvoProcessUnusedGlobalOptions}\marg{set}
 %   \end{syntax}
-%   This does no longer work with \LaTeXe\ kernels starting from 2021-05-01,
-%   since the handling of the unused option list changed and no longer includes
-%   the values. As a result this will throw a warning and else will be ignored.
+%   If you want to, instead of parsing all global options, you can parse only
+%   those global options which weren't yet used by another package or class.
 % \end{function}
+% \begin{description}
+%   \item[Class:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+%   \item[Package:]
+%     \begin{description}
+%       \item[defined] remove the option from the list of unused global options
+%       \item[undefined] \emph{nothing}
+%     \end{description}
+% \end{description}
 %
 % \begin{function}{\ekvoProcessOptionsList}
 %   \begin{syntax}
@@ -338,8 +346,7 @@ and the derived files           expkv-opt.pdf
 %
 % \begin{function}{\ekvoUseUnknownHandlers}
 %   \begin{syntax}
-%     \cs{ekvoUseUnknownHandlers}\meta{cs_1}\meta{cs_2}\quad{\normalfont\itshape or}
-%     \cs{ekvoUseUnknownHandlers}*
+%     \cs{ekvoUseUnknownHandlers}\meta{cs_1}\meta{cs_2}
 %   \end{syntax}
 %   With this macro you can change the action \expkvo\ executes if it encounters
 %   an undefined \key\ for the next (and only the next) list processing macro.
@@ -347,11 +354,7 @@ and the derived files           expkv-opt.pdf
 %   is encountered and get one argument, being the \key. Analogous the macro
 %   \meta{cs_2} will be called if an undefined \key\ with a \val\ was specified.
 %   It will get two arguments, the first being the \key\ and the second the
-%   \val.\par
-%   If you use the starred variant, it'll not take further arguments. In this
-%   case the undefined handlers defined via |\ekvdefunknown| and
-%   |\ekvdefunknownNoVal| in the parsing set get used, and if those aren't
-%   available they'll simply do nothing.
+%   \val.
 % \end{function}
 %
 % \begin{function}{\ekvoVersion,\ekvoDate}
@@ -473,36 +476,13 @@ and the derived files           expkv-opt.pdf
 %
 % \gobbledocstriptag
 %<*pkg>
-%
-% First we check whether the \LaTeXe\ kernel supports raw options. If it doesn't
-% we check whether a specific version was requested, and if that's not the case
-% we manually run |\pkgcls@parse@date@arg| with the last version that supported
-% non-raw options.
-%    \begin{macrocode}
-\IfFormatAtLeastTF{2021/05/01}
-  {}
-  {%
-    \ifx\pkgcls@targetlabel\@empty
-      \ifnum\requestedLaTeXdate=\pkgcls@targetdate
-        \pkgcls@parse@date@arg{=v0.1}%
-      \fi
-    \fi
-  }
-%    \end{macrocode}
-% Then we tell \LaTeXe\ where to find which release so that the package rollback
-% code of \LaTeXe\ can do its thing.
-%    \begin{macrocode}
-\DeclareRelease{v0.1}{2020/10/10}{expkv-opt-2020-10-10.sty}
-\DeclareCurrentRelease{v0.2}{2021/04/04}
-%    \end{macrocode}
-% 
 % Start the package with the typical \LaTeX\ standards.
 % 
 % \begin{macro}{\ekvoVersion,\ekvoDate}
 %   Store the packages version and date in two macros.
 %    \begin{macrocode}
-\newcommand*\ekvoVersion{0.2}
-\newcommand*\ekvoDate{2021-04-04}
+\newcommand*\ekvoVersion{0.1b}
+\newcommand*\ekvoDate{2020-10-10}
 %    \end{macrocode}
 % \end{macro}
 % And we report who we are and what we need.
@@ -614,73 +594,18 @@ and the derived files           expkv-opt.pdf
 %     \ekvo@rmfrom@unused@one,\ekvo@rmfrom@unused@two
 %   }
 %   These macros will add or remove the |\CurrentOption| to or from the list of
-%   unused global options. Since |\ekvo@do@unusedoptionlist| will have some
-%   overhead before calling the list changing macro in filtering the current
-%   option, we use an optimization here in that we check whether the list is
-%   empty before calling the |rmfrom| function.
+%   unused global options.
 %    \begin{macrocode}
-\long\def\ekvo@addto@unused@one#1{\ekvo@do@unusedoptionlist\ekvo@addto@list}
-\long\def\ekvo@addto@unused@two#1#2{\ekvo@do@unusedoptionlist\ekvo@addto@list}
-\long\def\ekvo@rmfrom@unused@one#1%
-  {%
-    \ekvo@ifx@F\@unusedoptionlist\@empty
-      {\ekvo@do@unusedoptionlist\ekvo@rmfrom@list}%
-  }
-\long\def\ekvo@rmfrom@unused@two#1#2%
-  {%
-    \ekvo@ifx@F\@unusedoptionlist\@empty
-      {\ekvo@do@unusedoptionlist\ekvo@rmfrom@list}%
-  }
+\long\def\ekvo@addto@unused@one#1{\ekvo@addto@list\@unusedoptionlist}
+\long\def\ekvo@addto@unused@two#1#2{\ekvo@addto@list\@unusedoptionlist}
+\long\def\ekvo@rmfrom@unused@one#1{\ekvo@rmfrom@list\@unusedoptionlist}
+\long\def\ekvo@rmfrom@unused@two#1#2{\ekvo@rmfrom@list\@unusedoptionlist}
 %    \end{macrocode}
 % \end{macro}
-%
-% \begin{macro}[internal]
-%   {
-%     \ekvo@do@unusedoptionlist,
-%     \ekvo@prepare@unusedoption,
-%     \ekvo@prepare@unusedoption@a,
-%     \ekvo@prepare@unusedoption@b,
-%     \ekvo@prepare@unusedoption@c
-%   }
-%   The way the new \LaTeXe\ kernel handles the unused option list changed. Now
-%   not the entire |\CurrentOption| is listed, but just everything up to the
-%   first equals sign, and spaces got zapped, doesn't matter whether the raw
-%   option list gets used or not. So we have to zap spaces and remove everything
-%   from the first equals sign onwards. The code used here will fail if the
-%   current option contains an |\ekv@mark| or |\ekv@stop| before the first
-%   equals sign (this seems rather unlikely).
-%    \begin{macrocode}
-\protected\def\ekvo@do@unusedoptionlist#1%
-  {%
-    \let\ekvo@unpreparedCurrentOption\CurrentOption
-    \edef\CurrentOption
-      {\expandafter\ekvo@prepare@unusedoption\CurrentOption=\ekv@mark}%
-    #1\@unusedoptionlist
-    \let\CurrentOption\ekvo@unpreparedCurrentOption
-  }
-\def\ekvo@prepare@unusedoption{\ekvo@prepare@unusedoption@a\@empty}
-\def\ekvo@prepare@unusedoption@a#1%
-  {%
-    \long\def\ekvo@prepare@unusedoption@a##1=##2\ekv@mark
-      {%
-        \ekvo@prepare@unusedoption@b##1\ekv@stop
-          \ekv@mark\ekvo@prepare@unusedoption@b
-          #1\ekv@mark\ekvo@prepare@unusedoption@c
-      }%
-  }
-\ekvo@prepare@unusedoption@a{ }
-\long\def\ekvo@prepare@unusedoption@b#1 #2\ekv@mark#3{#3#1#2\ekv@mark#3}
-\long\def\ekvo@prepare@unusedoption@c
-    #1\ekv@stop
-    \ekv@mark\ekvo@prepare@unusedoption@b\ekv@mark\ekvo@prepare@unusedoption@c
-  {\unexpanded\expandafter{#1}}
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}[internal]
 %   {
 %     \ekvo@set@handlers@local,\ekvo@set@handlers@global,
-%     \ekvo@set@handlers@list
+%     \ekvo@set@handlers@unusedglobal,\ekvo@set@handlers@list
 %   }
 %   These macros are boring. They just set up the handlers to respect the rules
 %   documented earlier.
@@ -695,9 +620,7 @@ and the derived files           expkv-opt.pdf
             \let\ekvo@handle@undefined@kv\@gobbletwo
           \else
             \expandafter
-            \ifx
-                \csname @raw@opt@\@currname.\@currext\endcsname
-                \@raw@classoptionslist
+            \ifx\csname opt@\@currname.\@currext\endcsname\@classoptionslist
               \let\ekvo@handle@undefined@k\ekvo@addto@unused@one
               \let\ekvo@handle@undefined@kv\ekvo@addto@unused@two
             \else
@@ -721,6 +644,21 @@ and the derived files           expkv-opt.pdf
       {%
         \let\ekvo@handle@undefined@k\@gobble
         \let\ekvo@handle@undefined@kv\@gobbletwo
+      }%
+  }
+\protected\def\ekvo@set@handlers@unusedglobal
+  {%
+    \ekvo@if@need@handlers
+      {%
+        \let\ekvo@handle@undefined@k\ekvo@addto@unused@one
+        \let\ekvo@handle@undefined@kv\ekvo@addto@unused@two
+        \let\@unusedoptionlist\@empty
+        \@gobbletwo
+      }%
+    \@firstofone
+      {%
+        \let\ekvo@handle@defined@k\ekvo@rmfrom@unused@one
+        \let\ekvo@handle@defined@kv\ekvo@rmfrom@unused@two
       }%
   }
 \protected\def\ekvo@set@handlers@list
@@ -915,11 +853,11 @@ and the derived files           expkv-opt.pdf
 \protected\def\ekvoProcessLocalOptions
   {%
     \ekvo@process@common
-      {\ekv@ifdefined{@raw@opt@\@currname.\@currext}\@firstofone\@gobble}%
+      {\ekv@ifdefined{opt@\@currname.\@currext}\@firstofone\@gobble}%
       {%
         \ekvo@set@handlers@local
         \expandafter
-        \ekvo@process@list\csname @raw@opt@\@currname.\@currext\endcsname
+        \ekvo@process@list\csname opt@\@currname.\@currext\endcsname
         \AtEndOfPackage{\let\@unprocessedoptions\relax}%
       }%
   }
@@ -932,7 +870,7 @@ and the derived files           expkv-opt.pdf
     \ekvo@process@common{\ekvo@ifx@F\@classoptionslist\relax}%
       {%
         \ekvo@set@handlers@global
-        \ekvo@process@list\@raw@classoptionslist
+        \ekvo@process@list\@classoptionslist
         \let\ekvo@handle@defined@k\@gobble
         \let\ekvo@handle@defined@kv\@gobbletwo
       }%
@@ -941,10 +879,16 @@ and the derived files           expkv-opt.pdf
 % \end{macro}
 % \begin{macro}{\ekvoProcessUnusedGlobalOptions}
 %    \begin{macrocode}
-\protected\def\ekvoProcessUnusedGlobalOptions#1%
+\protected\def\ekvoProcessUnusedGlobalOptions
   {%
-    \PackageWarning{expkv-opt}%
-      {This macro no longer works because of changes in the LaTeX2e kernel.}%
+    \ekvo@process@common{\ekvo@ifx@F\@unusedoptionlist\@empty}%
+      {%
+        \let\ekvo@tmp@list\@unusedoptionlist
+        \ekvo@set@handlers@unusedglobal
+        \ekvo@process@list\ekvo@tmp@list
+        \let\ekvo@handle@defined@k\@gobble
+        \let\ekvo@handle@defined@kv\@gobbletwo
+      }%
   }
 %    \end{macrocode}
 % \end{macro}
@@ -962,25 +906,7 @@ and the derived files           expkv-opt.pdf
 % \end{macro}
 % \begin{macro}{\ekvoUseUnknownHandlers}
 %    \begin{macrocode}
-\protected\def\ekvoUseUnknownHandlers
-  {\@ifstar\ekvoUseUnknownHandlers@s\ekvoUseUnknownHandlers@n}
-\protected\def\ekvoUseUnknownHandlers@s
-  {%
-    \def\ekvo@handle@undefined@k
-      {%
-        \ekv@ifdefined{\ekvo@name{}uN}%
-          {\csname\ekvo@name{}uN\endcsname}%
-          {\@gobble}%
-      }%
-    \long\def\ekvo@handle@undefined@kv##1##2%
-      {%
-        \ekv@ifdefined{\ekvo@name{}u}%
-          {\csname\ekvo@name{}u\endcsname{##2}{##1}}%
-          {}%
-      }%
-    \let\ekvo@if@need@handlers\ekvo@dont@need@handlers
-  }
-\protected\def\ekvoUseUnknownHandlers@n#1#2%
+\protected\def\ekvoUseUnknownHandlers#1#2%
   {%
     \let\ekvo@handle@undefined@k#1\relax
     \let\ekvo@handle@undefined@kv#2\relax

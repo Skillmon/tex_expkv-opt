@@ -1,6 +1,6 @@
 \input{regression-test}
 
-\RequirePackage{expkv-opt}
+\RequirePackage{expkv-opt}[=v0.1]
 
 \START
 \OMIT
@@ -12,7 +12,7 @@
     \else
       \def\@currext{#1}%
     \fi
-    \expandafter\def\csname @raw@opt@\@currname.\@currext\endcsname{#2}%
+    \expandafter\def\csname opt@\@currname.\@currext\endcsname{#2}%
   }
 
 \ekvdefNoVal{known set}{keyA}{}
@@ -37,8 +37,7 @@
 
 \OMIT
 \expandafter
-\let\expandafter\@raw@classoptionslist\csname @raw@opt@\@currname.\@currext\endcsname
-\let\@classoptionslist\@raw@classoptionslist
+\let\expandafter\@classoptionslist\csname opt@\@currname.\@currext\endcsname
 \TIMO
 
 \TEST{unknown local options}
@@ -57,7 +56,7 @@
   }
 
 \OMIT
-\def\@unusedoptionlist{keyA,keyB,keyC}
+\def\@unusedoptionlist{keyA,keyB=value,keyC={value, with a comma}}
 \TIMO
 
 \TEST{global options}

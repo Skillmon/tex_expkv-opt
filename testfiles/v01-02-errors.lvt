@@ -1,6 +1,6 @@
 \input{regression-test}
 
-\RequirePackage{expkv-opt}
+\RequirePackage{expkv-opt}[=v0.1]
 
 \START
 \OMIT
@@ -11,7 +11,7 @@
     \else
       \def\@currext{#1}%
     \fi
-    \expandafter\def\csname @raw@opt@\@currname.\@currext\endcsname{#2}%
+    \expandafter\def\csname opt@\@currname.\@currext\endcsname{#2}%
   }
 \ekvdef{known set}{keyA}{}
 \ekvdefNoVal{known set}{keyB}{}

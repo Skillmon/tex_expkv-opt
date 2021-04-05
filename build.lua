@@ -1,7 +1,7 @@
 -- Build script for expkv-opt
 module     = "expkv-opt"
-pkgversion = "0.1b"
-pkgdate    = "2020-10-10"
+pkgversion = "0.2"
+pkgdate    = "2021-04-04"
 
 -- update package date and version
 tagfiles = {"expkv-opt.dtx", "README.md", "CTAN.md"}
@@ -27,18 +27,19 @@ end
 
 -- test with pdfTeX and the LaTeX format
 checkengines = {"pdftex"}
-checkformat  = "latex"
+checkformat  = "latex-dev"
 
 -- from which files to build
-sourcefiles = {"expkv-opt.dtx"}
+sourcefiles = {"expkv-opt.dtx","expkv-opt-2020-10-10.dtx"}
 unpackfiles = sourcefiles
 
 -- which files to put in the tds
-installfiles = {"expkv-opt.sty"}
+installfiles = {"expkv-opt.sty","expkv-opt-2020-10-10.sty"}
 textfiles    = {"README.md", "CTAN.md"}
 docfiles     = {"expkv-opt.pdf"}
 
 -- how the documentation is build
+typesetexe   = "pdflatex-dev"
 typesetfiles = {"expkv-opt.dtx"}
 typesetruns  = 4
 

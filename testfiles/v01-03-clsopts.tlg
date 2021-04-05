@@ -8,29 +8,28 @@ macro:->
 ============================================================
 TEST 2: unknown local options
 ============================================================
-macro:->keyA,keyB,keyC
+macro:->keyA,keyB=value,keyC={value, with a comma}
 ============================================================
 ============================================================
 TEST 3: different handlers
 ============================================================
 macro:->
-macro:->keyA,keyB,keyC
+macro:->keyA,keyB=value,keyC={value, with a comma}
 ============================================================
 ============================================================
 TEST 4: global options
 ============================================================
-macro:->keyC
+macro:->keyC={value, with a comma}
 ============================================================
 ============================================================
 TEST 5: unused global options
 ============================================================
-Package expkv-opt Warning: This macro no longer works because of changes in the LaTeX2e kernel. on input line ....
-macro:->keyA,keyB,keyC
+macro:->keyA,keyB=value
 ============================================================
 ============================================================
 TEST 6: known local options
 ============================================================
-macro:->keyA,keyB,keyC,keyC
+macro:->keyA,keyB=value,keyC={value, with a comma},keyC={value, with a comma}
 ============================================================
 ============================================================
 TEST 7: correct values
