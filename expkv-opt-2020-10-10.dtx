@@ -53,7 +53,7 @@ and the derived file            expkv-opt-2020-10-10.sty
 \ifx\fmtname\nameofplainTeX
   \expandafter\endbatchfile
 \else
-  \expandafter\endgroup
+  \expandafter\endgroup\expandafter\stop
 \fi
 %
 \IfFileExists{expkv-opt.sty}{\RequirePackage{expkv-opt}}{}
